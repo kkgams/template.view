@@ -1,0 +1,12 @@
+{
+  "name": "view.example",
+  "version": "1.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --check src/views/view-example.js && node --test test/*.test.mjs && python3 -m unittest discover -s test -p 'test_*.py'",
+    "package": "python3 scripts/release.py"
+  },
+  "engines": { "node": ">=24" }
+}
