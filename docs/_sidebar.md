@@ -1,4 +1,1 @@
-- [[index|Overview]]
-- [[development|Development]]
-- [[api|Public API]]
-- [[installation|Installation]]
+- [[index|View development]]

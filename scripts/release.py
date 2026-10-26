@@ -1,4 +1,4 @@
-"""Package one View from explicit source files; no approval environment needed."""
+"""Package View source and license metadata as a reproducible release ZIP."""
 import argparse
 import hashlib
 import json
@@ -23,7 +23,7 @@ def package(root, tag=None):
         raise ValueError("expected private Apache-2.0 Project Unit, not an npm package")
 
     files = {}
-    for filename in ("LICENSE", "NOTICE", "README.md", "NOTES.md"):
+    for filename in ("LICENSE", "NOTICE", "README.md"):
         path = root / filename
         if path.is_symlink() or not path.is_file():
             raise ValueError(f"required regular file: {filename}")

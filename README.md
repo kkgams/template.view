@@ -1,103 +1,92 @@
-# template.view
+# View
 
-Starting point for an independently released GAMS View Project Unit. Includes a
-minimal `view-example` element, Apache-2.0 license, working notes, ZIP releases,
-and documentation powered by [justgook/wiki](https://github.com/justgook/wiki).
-No npm publishing, approval-digest variables, or dedicated release branch.
+A GAMS View that renders a greeting inside an Area. The Host provides the
+runtime, shared helpers, widgets and theme. View source lives under `src/` and
+is distributed as an independently released ZIP, not an npm package.
 
-## Start a View
+## Run locally
 
-1. **Create:** use this repository as a GitHub template (enable **Template
-   repository** in its settings), creating your own `view.<name>` repository.
-2. **Rename:** change `package.json` name, `view-example.js`, `ViewExample`,
-   and `view-example` to your Unit's names, including their references in npm
-   scripts and tests. Update NOTICE ownership, README, CONTEXT.md and docs,
-   including API and installation URLs. Retain LICENSE;
-   retain any attribution required for code you reuse.
-3. **Develop:** implement the View under `src/views/`; put companion assets
-   under `src/`. Run the checks below. The Host supplies its APIs and styling;
-   this repository is not a standalone Host or external Project.
-4. **Enable docs:** in GitHub **Settings → Pages → Source**, select
-   **GitHub Actions**. Push to the repository's default branch to deploy docs.
-   Use `workflow_dispatch` on that branch to deploy without a new commit.
-
-## Develop and document
-
-Requires Node.js 24+, Python 3 (stdlib), Make, curl and tar; no npm install needed.
-The wiki engine is downloaded on first use and cached under ignored `build/`.
+Requires an installed GAMS Host. For source checks, packaging and documentation,
+install Node.js 24+, Python 3, Make, curl and tar. No npm install is needed.
 
 ```sh
-npm test
-make serve-docs                 # http://localhost:8080
-make serve-docs PORT=3000
-make validate-docs
-make build-docs                 # portable wiki under build/site/
-npm run package                 # ZIP and SHA256SUMS under dist/
+make run                        # launch gams from PATH with this Project
+make serve-docs                 # documentation at http://localhost:8080
+make check                      # JavaScript syntax
+make validate-docs              # documentation structure and links
+make package                    # release ZIP and SHA256SUMS under dist/
 ```
 
-Documentation lives in `docs/`; add pages to `docs/_sidebar.md`. Local preview and
-GitHub Pages both use wiki v1.4.0, without vendoring the engine. See
-[development](docs/development.md) and the [public API](docs/api.md).
+Run the View and documentation in separate terminals. Set `DOCS_PORT=…` to
+change the documentation port. If the Host executable is not on PATH, specify it:
 
-## Version rules
+```sh
+make run GAMS_BIN=/Applications/GAMS.app/Contents/MacOS/gams
+```
 
-Versions follow these public-API rules. Package versions are `1.0.0`; Git tags
-are exactly `v1.0.0`, without prerelease/build suffixes or leading zeros.
-Start at `1.0.0`; compare each release with the previous published API.
+`gams.json` opens `src/views/view-example.js` directly and pins published plugins,
+theme and UI Services. GAMS downloads these dependencies into its managed cache;
+first launch requires network access. Reload the Project after source changes.
+The local Project configuration is not included in the View's release ZIP.
 
-- **Major:** incompatible API changes: remove or rename an element, method,
-  attribute or event; change accepted inputs, outputs or documented behavior
-  incompatibly; add a required input; or require an incompatible Host contract.
-  Increment MAJOR and reset MINOR and PATCH to zero.
-- **Minor:** add public API while preserving all existing uses (for example,
-  an optional attribute or new method). Increment MINOR and reset PATCH to zero.
-- **Patch:** no public API change: internal improvements, compatible bug fixes,
-  documentation or tests. Increment PATCH only.
+## Develop
 
-Use the largest applicable bump. Public API includes element tags, attributes,
-properties, callable methods, events and payloads, configuration, deployment
-entry paths and required Host facilities. Document these in `docs/api.md`.
-These rules are a maintainer responsibility, not an automated API-diff claim.
+Edit `src/views/view-example.js`. It defines `view-example` and uses
+`/util/view-plugin.js` to register on mount and unregister on disconnect.
+Add companion deployment files under `src/`; packaging removes that directory
+prefix, so the entry becomes `views/view-example.js`.
+
+Follow the Host-owned
+[GAMS View development guide](https://github.com/kkgams/gams/blob/release/docs/gams-view-development-guide.md).
+Use its semantic markup and Host-owned `/util` and `/widgets` helpers. Popups,
+tooltips and toasts go through UI Services. Do not bundle Host source or add
+View-specific CSS. The root `display: contents` rule is required by the guide.
+Check rendering and lifecycle behavior in the real Host before releasing.
+
+Edit `docs/index.md` for development instructions and the public API.
+`make build-docs` builds a portable site under `build/site/`. The pinned wiki
+engine downloads on first use and stays in ignored `build/`.
 
 ## Release
 
-The version commit is the commitment to release. Its matching tag triggers
-publication; no second approval, environment digest or branch check is required.
-The workflow tests and packages that exact tagged checkout, then creates a
-GitHub Release containing `<package-name>-<version>.zip` and `SHA256SUMS`.
-Existing releases are not overwritten. Published versions must not be retagged.
+`package.json` owns the Unit name and version. Use strict MAJOR.MINOR.PATCH
+versions and matching `vMAJOR.MINOR.PATCH` tags. Public API includes element tags,
+entry paths, attributes, properties, methods, events, configuration and required
+Host facilities. Use major for incompatible changes, minor for compatible API
+additions and patch for compatible fixes or documentation changes. Document the
+API in `docs/index.md` before releasing.
 
-For the initial release, commit the prepared `1.0.0` source and tag that commit:
+The version commit and matching tag authorize a release. CI checks syntax,
+validates docs and packages the tagged source, then publishes the ZIP and
+`SHA256SUMS`. Existing releases are not overwritten or retagged. There is no
+required release branch or custom release secret.
+
+For the initial 1.0.0 release, tag the prepared source commit:
 
 ```sh
-git add .
-git commit -m '✨(view.example): release v1.0.0'
 git tag v1.0.0
 git push origin HEAD refs/tags/v1.0.0
 ```
 
-For later releases, start from a clean checkout with changes already committed:
+For later releases, commit development changes and start from a clean checkout:
 
 ```sh
-npm test
-make validate-docs
+make check validate-docs package
 npm version patch -m '🔖(view.example): release v%s'  # or minor / major
 git push origin HEAD --follow-tags
 ```
 
-`npm version` updates package.json and creates the version commit and matching
-annotated tag. Update the commit context to your Unit's name. A branch push alone
-runs checks and deploys default-branch docs; it does not publish a Unit release.
-GitHub Actions uses its built-in token; no custom release secrets are needed.
+The ZIP includes deployment files, LICENSE, NOTICE and README.md. Consumers
+register the published entry URL in their Project; see [the guide](docs/index.md).
+Do not extract release metadata over a Project's own files.
 
-The ZIP strips `src/` and includes LICENSE, NOTICE, README.md and NOTES.md.
-The example entry is `views/view-example.js`. After renaming, configure your
-external Project with the release URL and explicit entry fragment; see
-[installation](docs/installation.md). Do not extract release metadata over a
-Project's own files.
+## Publish documentation
+
+Enable **GitHub Actions** as the repository's Pages source. Pushes to the default
+branch deploy documentation; other branch pushes do not publish it. A branch
+push alone never publishes a View release.
 
 ## License
 
-Apache-2.0, matching the default for GAMS-authored Project Unit code. Third-party
-assets/code retain their own terms: include their licenses and attribution when
-adding them. This template includes no third-party runtime assets.
+Apache-2.0. Preserve LICENSE, NOTICE and any third-party attribution when adding
+code or assets.
