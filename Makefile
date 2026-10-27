@@ -1,3 +1,8 @@
+PYTHON ?= python3
+GAMS_RELEASE_API ?= https://api.github.com/repos/kkgams/gams/releases/latest
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
 .DEFAULT_GOAL := check
 .DELETE_ON_ERROR:
 CURL ?= curl
@@ -52,3 +57,24 @@ $(WIKI_MAKEFILE):
 
 serve-docs validate-docs build-docs: $(WIKI_MAKEFILE)
 	$(MAKE) -f "$(WIKI_MAKEFILE)" "$(patsubst %-docs,%,$@)" WIKI_REPOSITORY="$(WIKI_REPOSITORY)" WIKI_VERSION="$(WIKI_VERSION)" WIKI_ENGINE="$(WIKI_ENGINE)" WIKI_SOURCE="$(abspath docs)" WIKI_OUTPUT="$(abspath build/site)" PORT="$(DOCS_PORT)"
+
+# Optional Host download. Existing app
+# directories have no prerequisites and are never refreshed by ordinary Make.
+tools/gams.app:
+	@test "$(UNAME_S)" = Darwin && { test "$(UNAME_M)" = arm64 || test "$(UNAME_M)" = aarch64; } || \
+		{ echo 'GAMS release download requires macOS Apple Silicon' >&2; exit 1; }
+	@mkdir -p tools "build"
+	@set -eu; stage=$$(mktemp -d "build/gams-download.XXXXXX"); \
+		trap 'rm -rf "$$stage"' EXIT; \
+		$(CURL) --fail --location --silent --show-error "$(GAMS_RELEASE_API)" --output "$$stage/release.json"; \
+		url=$$($(PYTHON) -c 'import json, sys; release = json.load(open(sys.argv[1])); assets = [a for a in release["assets"] if a["name"].startswith("GAMS-") and a["name"].endswith("-macos-aarch64.zip")]; assert len(assets) == 1, "Expected exactly one GAMS macOS Apple Silicon ZIP asset"; print(assets[0]["browser_download_url"])' "$$stage/release.json"); \
+		$(CURL) --fail --location --silent --show-error "$$url" --output "$$stage/gams.zip"; \
+		unzip -q "$$stage/gams.zip" -d "$$stage/unpacked"; \
+		test -f "$$stage/unpacked/GAMS.app/Contents/Info.plist"; \
+		test -x "$$stage/unpacked/GAMS.app/Contents/MacOS/gams"; \
+		mv "$$stage/unpacked/GAMS.app" "$@"
+
+
+.PHONY: open
+open: tools/gams.app
+	GAMS_APP_CWD="$(CURDIR)" ./tools/gams.app/Contents/MacOS/gams

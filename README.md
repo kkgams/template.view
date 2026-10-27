@@ -27,6 +27,17 @@ theme and UI Services. GAMS downloads these dependencies into its managed cache;
 first launch requires network access. Reload the Project after source changes.
 The local Project configuration is not included in the View's release ZIP.
 
+## Open in GAMS
+
+```sh
+make open  # download GAMS if absent, then open this Project
+```
+
+Requires macOS Apple Silicon, Make, curl, Python 3 and `unzip`. Uses the latest
+published `kkgams/gams` release at `tools/gams.app`; existing apps are not updated.
+Remove that directory to download a newer release. The Host stays attached to the
+terminal for logs. Existing `make run` behavior is unchanged.
+
 ## Develop
 
 Edit `src/views/view-example.js`. It defines `view-example` and uses
