@@ -10,17 +10,18 @@ which supplies runtime APIs, shared widgets, helpers and theme styling.
 
 ## Run the View and docs
 
-Install GAMS, Node.js 24+, Python 3, Make, curl and tar. Run from the project root
+Install Node.js 24+, Python 3, Make, curl, unzip and tar. The released Host
+download requires macOS Apple Silicon. Run from the project root
 in separate terminals:
 
 ```sh
-make run         # open the local Project in GAMS
+make open        # open the local Project in downloaded GAMS
 make serve-docs  # http://localhost:8080
 ```
 
-Set `GAMS_BIN` to the Host executable if `gams` is not on PATH; for example,
-`make run GAMS_BIN=/Applications/GAMS.app/Contents/MacOS/gams`.
-Use `DOCS_PORT=…` to change the docs port.
+`make open` preserves the downloaded `tools/gams.app` and accompanying release
+notices, sets `GAMS_APP_CWD` to this repository and loads source directly.
+Use `DOCS_PORT=…` to change the docs port. `make docs` builds `build/site/`.
 
 `gams.json` selects the local View source and published Host dependencies.
 The Host installs its configured dependencies on first launch. Reload the

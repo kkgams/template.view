@@ -6,11 +6,11 @@ is distributed as an independently released ZIP, not an npm package.
 
 ## Run locally
 
-Requires an installed GAMS Host. For source checks, packaging and documentation,
-install Node.js 24+, Python 3, Make, curl and tar. No npm install is needed.
+Install Node.js 24+, Python 3, Make, curl, unzip and tar. `make open` downloads
+the released GAMS Host on first use (macOS Apple Silicon). No npm install is needed.
 
 ```sh
-make run                        # launch gams from PATH with this Project
+make open                       # open this Project in downloaded GAMS
 make serve-docs                 # documentation at http://localhost:8080
 make check                      # JavaScript syntax
 make validate-docs              # documentation structure and links
@@ -18,11 +18,9 @@ make package                    # release ZIP and SHA256SUMS under dist/
 ```
 
 Run the View and documentation in separate terminals. Set `DOCS_PORT=…` to
-change the documentation port. If the Host executable is not on PATH, specify it:
-
-```sh
-make run GAMS_BIN=/Applications/GAMS.app/Contents/MacOS/gams
-```
+change the documentation port. The ignored `tools/gams.app` is retained without
+automatic updates, alongside its release notices. `GAMS_APP_CWD` explicitly selects
+this repository's `gams.json`; no neighboring checkout is required.
 
 `gams.json` opens `src/views/view-example.js` directly and pins published plugins,
 theme and UI Services. GAMS downloads these dependencies into its managed cache;
@@ -44,7 +42,7 @@ View-specific CSS. The root `display: contents` rule is required by the guide.
 Check rendering and lifecycle behavior in the real Host before releasing.
 
 Edit `docs/index.md` for development instructions and the public API.
-`make build-docs` builds a portable site under `build/site/`. The pinned wiki
+`make docs` builds a portable site under `build/site/`. The pinned wiki
 engine downloads on first use and stays in ignored `build/`.
 
 ## Release
@@ -82,9 +80,10 @@ Do not extract release metadata over a Project's own files.
 
 ## Publish documentation
 
-Enable **GitHub Actions** as the repository's Pages source. Pushes to the default
-branch deploy documentation; other branch pushes do not publish it. A branch
-push alone never publishes a View release.
+Enable **GitHub Actions** as the repository's Pages source and allow `release`
+in the `github-pages` environment. Every push to `release` runs `make docs` and
+deploys documentation, independently of the default branch and version tags.
+A branch push alone never publishes a View release.
 
 ## License
 
