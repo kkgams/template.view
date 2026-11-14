@@ -5,3 +5,5 @@ node_modules/
 __pycache__/
 gams_modules/
 tools/
+
+/build.nosync/
