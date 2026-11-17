@@ -18,7 +18,7 @@ Requires Make, Node.js 24, Python 3, curl, zip, unzip and tar. No package instal
 | `make serve-docs` | Preview pinned wiki with independent `DOCS_PORT=8080` |
 | `make validate-docs` | Validate wiki |
 | `make docs` | Build `build.nosync/site/` |
-| `make clean` | Remove generated output, marked Host download and configured completed Unit caches; refuse tracked files, symlinks and unidentified tools/caches |
+| `make clean` | Remove entire `build.nosync/`, `tools/` and `gams_modules/`, including unmarked tools/caches; refuse tracked files and symlinks in all targets before deleting anything. |
 
 Edit `src/views/view-example.js`; the local Project loads it directly. First launch downloads the released Host and configured Units, requiring network. Existing Host downloads are retained without implicit updates; accompanying notices remain beside the app. Launch explicitly selects this repository's `gams.json` with `GAMS_APP_CWD`. No sibling checkout is required.
 
